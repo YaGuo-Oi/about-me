@@ -4,65 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The web site of ya-guo</title>
-    <link href="/style.css" rel="stylesheet" type="text/css" media="all">
-    <style>
-      /* Center page content */
-      body {
-        margin: 0;
-        padding: 40px 20px;
-        display: flex;
-        justify-content: center;
-      }
-
-      /* Main container centering and max-width constraint */
-      .about-me-container {
-        max-width: 800px;
-        width: 100%;
-        margin: 0 auto;
-        text-align: center; /* Center text alignment */
-      }
-
-      /* Center iframe data visualization */
-      iframe {
-        display: block;
-        margin: 24px auto;
-      }
-
-      /* Center self-portrait image */
-      img {
-        display: block;
-        margin: 20px auto;
-        max-width: 100%;
-        height: auto;
-      }
-    </style>
+    <link href="style.css" rel="stylesheet" type="text/css" media="all">
   </head>
   <body>    
+    <header class="page-header">
+      <p class="page-tag">Personal Portfolio / About Me</p>
+    </header>
+
     <main class="about-me-container">
-      <h1>Ya's Webpage!</h1>
-      <div class="about-me-text">
+      <!-- Section 1 -->
+      <section class="section-editorial">
+        <div class="section-num">01 / Profile</div>
+        <h2>Who I Am</h2>
         <p>Hi, everyone. I'm Ya.</p>
+        <p>This is my second time trying to code something. however, this is hard....</p>
+        <p>I'm a senior student in QUEENS COLLEGE now.</p>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="section-editorial">
+        <div class="section-num">02 / Visualization</div>
+        <h2>Interactive Data Visualization</h2>
+        <p>Coffee orders breakdown tracking daily favorites (hover over bars to inspect details):</p>
         
-        <p>This is my second time trying to code something. However, this is still hard....</p>
-        
-        <p>Im a senior student at Queens college now.</p>
-      </div>
+        <div class="chart-wrapper">
+          <iframe 
+            id="dv-f8bc2d1793239994136" 
+            src="https://s3.amazonaws.com/datavisual/embeds/c01392a288.html" 
+            title="Data visualization"
+            style="height: 454px; max-width: 800px; width: 100%; border: 0; overflow: hidden;" 
+            scrolling="no" 
+            data-height="453.64707892039627" 
+            data-width="800">
+          </iframe>
+        </div>
 
-      <iframe 
-        id="dv-f8bc2d1793239994136" 
-        src="https://s3.amazonaws.com/datavisual/embeds/c01392a288.html" 
-        title="Data visualization"
-        style="height: 454px; max-width: 800px; width: 100%; border: 0; overflow: hidden;" 
-        scrolling="no" 
-        data-height="453.64707892039627" 
-        data-width="800">
-      </iframe>
+        <script src="https://s3.amazonaws.com/datavisual/js/responsive.js#!dv-f8bc2d1793239994136,c01392a288.html"></script>
+        <script src="https://s3.amazonaws.com/datavisual/js/lazyLoad.js#!dv-f8bc2d1793239994136,c01392a288.html"></script>
+      </section>
 
-      <script src="https://s3.amazonaws.com/datavisual/js/responsive.js#!dv-f8bc2d1793239994136,c01392a288.html"></script>
-      <script src="https://s3.amazonaws.com/datavisual/js/lazyLoad.js#!dv-f8bc2d1793239994136,c01392a288.html"></script>
-
-      <p>The picture below is my self-portrait!</p>
-      <img src="selfprofile.png" alt="Self-portrait of Ya Guo" width="500">
+      <!-- Section 3 -->
+      <section class="section-editorial">
+        <div class="section-num">03 / Portrait</div>
+        <h2>Self-Portrait</h2>
+        <p>A self-portrait illustration created for this project:</p>
+        <div class="portrait-wrapper">
+          <img src="selfprofile.png" alt="Self-portrait of Ya Guo" width="500">
+        </div>
+      </section>
     </main>
+
+    <footer class="page-footer">
+      <p>Built for Data Visualization Design · Hosted on GitHub Pages</p>
+    </footer>
   </body>
 </html>
