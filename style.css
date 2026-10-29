@@ -99,7 +99,7 @@ iframe {
   border: none;
 }
 
-/* Portrait Image */
+/* Portrait Image - Strictly Keep Aspect Ratio */
 .portrait-wrapper {
   margin-top: 24px;
   display: flex;
@@ -108,9 +108,10 @@ iframe {
 
 img {
   display: block;
+  width: 360px; /* Adjust this width to make it larger or smaller */
   max-width: 100%;
-  height: auto;
-  max-height: 480px;
+  height: auto !important; /* Forces strict aspect ratio preservation */
+  object-fit: contain;
   border-radius: 4px;
 }
 
