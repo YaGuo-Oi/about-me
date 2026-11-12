@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Archive — ya-guo</title>
+    <link href="style.css" rel="stylesheet" type="text/css" media="all">
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="header-row">
+        <p class="page-tag">Open API Archive / The Met Costume Institute</p>
+        <nav class="site-nav">
+          <a href="index.html">01. About</a>
+          <a href="archive.html" class="active">02. Fashion Archive (API)</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="about-me-container">
+      <section class="section-editorial">
+        <div class="section-num">02 / Collection Explorer</div>
+        <h2>Costume Institute Garment Grid</h2>
+        <p>Live public-domain records queried from The Metropolitan Museum of Art Open Access API. Click any piece to inspect its medium, date, and archival details.</p>
+
+        <!-- Category Preset Buttons -->
+        <div class="archive-controls" id="categoryButtons">
+          <button class="filter-btn active" data-query="evening dress">Evening Dresses</button>
+          <button class="filter-btn" data-query="silk coat">Silk Coats</button>
+          <button class="filter-btn" data-query="kimono">Kimonos</button>
+          <button class="filter-btn" data-query="shoes">Footwear</button>
+          <button class="filter-btn" data-query="hat">Millinery & Hats</button>
+        </div>
+
+        <!-- Custom Search -->
+        <form class="search-bar" id="searchForm">
+          <input type="text" id="searchInput" placeholder="Search garments (e.g., Dior, velvet, corset, jacket)..." />
+          <button type="submit">Search</button>
+        </form>
+
+        <p id="statusText" style="font-size: 13px; color: #6b7280; margin-bottom: 16px;">Loading archival pieces...</p>
+
+        <!-- Art Grid -->
+        <div class="art-grid" id="artGrid"></div>
+      </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <dialog class="art-modal" id="artModal">
+      <div class="modal-inner" id="modalContent"></div>
+    </dialog>
+
+    <footer class="page-footer">
+      <p>Data via The Metropolitan Museum of Art Open Access API (CC0) · Hosted on GitHub Pages</p>
+    </footer>
+
+    <script>
+      const artGrid = document.getElementById('artGrid');
+      const statusText = document.getElementById('statusText');
+      const artModal = document.getElementById('artModal');
+      const modalContent = document.getElementById('modalContent');
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const categoryButtons = document.querySelectorAll('.filter-btn');
+
+      // Curated Costume Institute IDs with guaranteed CC0 images as fallback
+      const FALLBACK_IDS = [
+        81116, 82433, 83203, 84590, 155808, 156022,
+        156614, 157577, 158130, 81542, 82765, 83912
+      ];
+
+      async function fetchObjectDetails(ids) {
+        const requests = ids.slice(0, 24).map(id =>
+          fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`)
+            .then(res => (res.ok ? res.json() : null))
+            .catch(() => null)
+        );
+        const results = await Promise.all(requests);
+        return results.filter(item => item && (item.primaryImageSmall || item.primaryImage)).slice(0, 12);
+      }
+
+      async function loadCollection(query) {
+        statusText.textContent = `Fetching "${query}" from The Met Costume Institute...`;
+        artGrid.innerHTML = '';
+
+        try {
+          // Department 8 = The Costume Institute
+          const searchUrl = `https://collectionapi.metmuseum.org/public/collection/v1/search?departmentId=8&hasImages=true&q=${encodeURIComponent(query)}`;
+          const res = await fetch(searchUrl);
+          const data = await res.json();
+
+          let validItems = [];
+          if (data && Array.isArray(data.objectIDs) && data.objectIDs.length > 0) {
+            validItems = await fetchObjectDetails(data.objectIDs);
+          }
+
+          if (validItems.length === 0) {
+            statusText.textContent = `Showing curated Costume Institute highlights (no direct image matches for "${query}").`;
+            validItems = await fetchObjectDetails(FALLBACK_IDS);
+          } else {
+            statusText.textContent = `Showing ${validItems.length} public-domain garments for "${query}".`;
+          }
+
+          renderGrid(validItems);
+        } catch (err) {
+          statusText.textContent = 'Loaded curated Costume Institute highlights.';
+          const fallbackItems = await fetchObjectDetails(FALLBACK_IDS);
+          renderGrid(fallbackItems);
+        }
+      }
+
+      function renderGrid(items) {
+        artGrid.innerHTML = '';
+        items.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'art-card';
+          const imgSrc = item.primaryImageSmall || item.primaryImage;
+          const designer = item.artistDisplayName || item.culture || 'Designer Unknown';
+          const date = item.objectDate || 'Date Unknown';
+
+          card.innerHTML = `
+            <img class="art-thumb" src="${imgSrc}" alt="${item.title}" loading="lazy">
+            <div class="art-meta">${date}</div>
+            <h3 class="art-title">${item.title}</h3>
+            <p class="art-artist">${designer}</p>
+          `;
+
+          card.addEventListener('click', () => openModal(item));
+          artGrid.appendChild(card);
+        });
+      }
+
+      function openModal(item) {
+        const imgSrc = item.primaryImage || item.primaryImageSmall;
+        modalContent.innerHTML = `
+          <div>
+            <img src="${imgSrc}" alt="${item.title}">
+          </div>
+          <div class="modal-details">
+            <div class="section-num">Object ID #${item.objectID}</div>
+            <h3>${item.title}</h3>
+            <p><strong>Designer / Culture:</strong> ${item.artistDisplayName || item.culture || 'Unknown'}</p>
+            <p><strong>Date:</strong> ${item.objectDate || 'Unknown'}</p>
+            <p><strong>Medium:</strong> ${item.medium || 'Not specified'}</p>
+            <p><strong>Dimensions:</strong> ${item.dimensions || 'Not specified'}</p>
+            <p><strong>Department:</strong> ${item.department}</p>
+            <p style="margin-top: 12px;">
+              <a href="${item.objectURL}" target="_blank" rel="noopener">View record on metmuseum.org &rarr;</a>
+            </p>
+            <button class="close-modal" id="closeModalBtn">Close</button>
+          </div>
+        `;
+        artModal.showModal();
+        document.getElementById('closeModalBtn').addEventListener('click', () => artModal.close());
+      }
+
+      // Close modal when clicking outside dialog box
+      artModal.addEventListener('click', (e) => {
+        if (e.target === artModal) artModal.close();
+      });
+
+      // Category filter buttons
+      categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          categoryButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          searchInput.value = '';
+          loadCollection(btn.dataset.query);
+        });
+      });
+
+      // Custom search form
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const q = searchInput.value.trim();
+        if (!q) return;
+        categoryButtons.forEach(b => b.classList.remove('active'));
+        loadCollection(q);
+      });
+
+      // Initial load
+      loadCollection('evening dress');
+    </script>
+  </body>
+</html>
